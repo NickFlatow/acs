@@ -448,10 +448,20 @@ else if(pKey =='LTE_FIOS_STEP2')
 					paramSet_Prov[j++] = { name:'Device.X_FOXCONN_FAP.REM.LTE.syncFemtoEARFCNList', value:g_para_prov.LTE_syncFemtoEARFCNList, type:'xsd:string' }
 				}
 			}
-			
+			func_logSave('Provisioning', 'Processing', 'Update HeNB new configuration', '', cpedb.UserName);
+			if(hclass == 'FAP_FC4064Q1CA')
+			{
+				pKey = cpedb.ProvDoneKey
+				
+			}
+			else
+			{
+				pKey = 'LTE_FIOS_STEP6'
+			}
 
-			cpe.log(SerialNumber+':'+'Send SetParameterValues: paramSet_Prov: LTE_FIOS_STEP6');
-			cpe.SetParameterValues (paramSet_Prov, 'LTE_FIOS_STEP6');
+
+			cpe.log(SerialNumber+':'+'Send SetParameterValues: paramSet_Prov:'+ pKey);
+			cpe.SetParameterValues (paramSet_Prov, pKey);
 			//func_log('Enter LTE_FIOS_STEP3 - set EUTRACarrierARFCNDL, FreqBand and S1 Server');
 
 			//20180829, fox, Darren, add for set parameters log.
@@ -459,8 +469,11 @@ else if(pKey =='LTE_FIOS_STEP2')
 			{
 				cpe.log( "SetParameters : " +  paramSet_Prov[j].name + " -> " + paramSet_Prov[j].value + "\n" );
 			}
+			if(pKey == 'LTE_FIOS_STEP7')
+			{
+				cpe.Reboot(pKey)
+			}
 
-			func_logSave('Provisioning', 'Processing', 'Update HeNB new configuration', '', cpedb.UserName);
 		}
 	}
 	catch (e)
@@ -474,58 +487,90 @@ else if(pKey == 'LTE_FIOS_STEP6')
 	{
 		var logStr="";
 		func_log('Enter LTE_FIOS_STEP6');
+		// if(hclass == 'FAP_FC4064Q1CA')
+		// {
+		// 	// paramSet_Prov[0]={name:'Device.ManagementServer.ParameterKey', value:'LTE_FIOS_STEP7',type:'xsd:string'}
+		// 	paramSet_Prov[0]={name:'Device.ManagementServer.PeriodicInformInterval', value:10, type:'xsd:unsignedInt'};
+		// 	cpe.log("!!!!! crying is okay !!!!!!");
+		// 	cpedb.pKey = 'LTE_FIOS_STEP7';
+		// 	pKey = 'LTE_FIOS_STEP7';
+		// 	cpe.SetParameterValues (paramSet_Prov,pKey);
+		// 	// cpe.Reboot(pKey);
+		// 	func_log('Set pKey as '+ pKey);
+		// 	func_logSave('Provisioning', 'Success', logStr, '', cpedb.UserName);
+		// }
+		// else
+		// {
 
-		/* Foxconn 20201217 jack add */
-    	var sql_query="SELECT * FROM `"+cpedb.SubscriptionDB+"` WHERE `SN` = '"+SerialNumber+"';";
-		var rs = db.Query (sql_query);
-		if(rs.length==1)
-		{
-			if(rs[0].Type == 2&&rs[0].Parameter&&rs[0].Parameter!=''){
-				logStr='HeNB Provision performed sucessfully. Turning on HeNB radio power';
-			paramSet_Prov[0]={name:'Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.1.Enable', value:true, type:'xsd:boolean'};
-			}
-			/* Foxconn 20201217 jack add end */
-			else
+		
+			/* Foxconn 20201217 jack add */
+			var sql_query="SELECT * FROM `"+cpedb.SubscriptionDB+"` WHERE `SN` = '"+SerialNumber+"';";
+			var rs = db.Query (sql_query);
+			if(rs.length==1)
 			{
-				cpe.log("here we are");	
-				if (hclass == 'sXGP_FAP_FC4064') //(1CA) || 2CA || legacy .... 
-				{
-					cpe.log("trigger registartaion in Domain proxy by adding")
-					var sql_query1 = "update dp_device_info SET `sasStage` = 'reg' WHERE `SN` = \'"+SerialNumber+"\'"
-					// var sql_query1 = "SELECT * FROM dp_device_info"
-					cpe.log("!!!!!!!!!!!!!!!!!!DP TEST!!!!!!!!!!!!!!!")
-					cpe.log("SQL CMD :"+sql_query1)
-					cpe.log("!!!!!!!!!!!!!!!!!!DP TEST!!!!!!!!!!!!!!!")
-					db.Update(sql_query1)
-					cpe.log(":(:(:(:(:(:(:(:(:(:(")
-					//when dp flow is complete cell will turn on
+				if(rs[0].Type == 2&&rs[0].Parameter&&rs[0].Parameter!=''){
+					logStr='HeNB Provision performed sucessfully. Turning on HeNB radio power';
+				paramSet_Prov[0]={name:'Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.1.Enable', value:true, type:'xsd:boolean'};
 				}
-				// else if(cpedb.EnableService=="On")
-				// {
-				// 	logStr='HeNB Provision performed sucessfully. Turning on HeNB radio power';
-				// 	paramSet_Prov[0]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState',    value:true,type:'xsd:boolean'};
-				// }
-				// else
-				// {
-				// 	logStr='HeNB Provision performed sucessfully. Turning off HeNB radio power';	
-				// 	paramSet_Prov[0]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState',    value:false,type:'xsd:boolean'};
-				// }
-			}
-		}
-   		
-		paramSet_Prov[0]={name:'Device.ManagementServer.PeriodicInformInterval', value:cpedb.PII, type:'xsd:unsignedInt'};
+				/* Foxconn 20201217 jack add end */
+				else
+				{
 
-		
-		cpe.log(SerialNumber+':'+'Send SetParameterValues: paramSet_Prov:'+cpedb.ProvDoneKey);
-		cpe.SetParameterValues (paramSet_Prov, cpedb.ProvDoneKey);
-		
-		//update by peter for radisys reboot failed
-		cpe.Reboot(cpedb.ProvDoneKey);
-		func_log('Set pKey as '+ cpedb.ProvDoneKey);
-		func_logSave('Provisioning', 'Success', logStr, '', cpedb.UserName);
-	}catch(e)
+					if(cpedb.EnableService=="On")
+					{
+						logStr='HeNB Provision performed sucessfully. Turning on HeNB radio power';
+						paramSet_Prov[0]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState',    value:true,type:'xsd:boolean'};
+					}
+					else
+					{
+						logStr='HeNB Provision performed sucessfully. Turning off HeNB radio power';	
+						paramSet_Prov[0]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState',    value:false,type:'xsd:boolean'};
+					}
+				}
+			}
+			paramSet_Prov[1]={name:'Device.ManagementServer.PeriodicInformInterval', value:cpedb.PII, type:'xsd:unsignedInt'};
+
+			
+			cpe.log(SerialNumber+':'+'Send SetParameterValues: paramSet_Prov:'+cpedb.ProvDoneKey);
+			cpe.SetParameterValues (paramSet_Prov, cpedb.ProvDoneKey);
+			
+			//update by peter for radisys reboot failed
+			cpe.Reboot(cpedb.ProvDoneKey);
+			func_log('Set pKey as '+ cpedb.ProvDoneKey);
+			func_logSave('Provisioning', 'Success', logStr, '', cpedb.UserName);
+	}
+	catch(e)
 	{
 		catchMessage(e);
+	}
+}
+else if (pKey == 'LTE_FIOS_STEP7')
+{
+	cpe.log("Enter STEP 7")
+	cpe.log(cpedb.sasStatus);
+	
+	paramGet_Prov[0] = "Device.X_FOXCONN_FAP.CellConfig.EUTRACarrierARFCNDLInUse";
+	paramGet_Prov[1] = "Device.X_FOXCONN_FAP.CellConfig.SonMaxTxPower_Max";
+	
+	var response     = cpe.GetParameterValues(paramGet_Prov);
+	cpe.log("abcdefghijklmnopqrstuvwxyz: "+response[1].value+ " abcdefghijklmnopqrstuvwxyz");
+	for( idx = 0; idx < response.length; idx = idx + 1 )
+	{
+		if( response[idx].name == 'Device.X_FOXCONN_FAP.CellConfig.EUTRACarrierARFCNDLInUse' ){ cpedb.EARFCNinUSE = response[idx].value }
+		if ( response[idx].name == 'Device.X_FOXCONN_FAP.CellConfig.SonMaxTxPower_Max' ){ cpedb.MaxTxPower = response[idx].value }
+	}
+	if(cpedb.sasStatus = "unreg")
+	{
+		cpe.log("/////////////////////////////////TRIGGER DOMAIN PROXY\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'")
+		var sql_query1 = "update dp_device_info SET `sasStage` = 'reg' WHERE `SN` = \'"+SerialNumber+"\'"
+		// var sql_query1 = "SELECT * FROM dp_device_info"
+		cpe.log("!!!!!!!!!!!!!!!!!!DP TEST!!!!!!!!!!!!!!!")
+		cpe.log("SQL CMD :"+sql_query1)
+		cpe.log("!!!!!!!!!!!!!!!!!!DP TEST!!!!!!!!!!!!!!!")
+		db.Update(sql_query1)
+		//when dp flow is complete cell will turn on
+		cpedb.sasStatus = "reg";
+		cpe.log(cpedb.sasStatus);
 	}
 }
 else if((pKey == 'LTE_PROV_NO DB_FOUND1' || pKey == 'LTE_PROV_NO DB_FOUND2')  && (cpedb.ServiceName== "undefined" || cpedb.cpeStatus=="Unsubscribed"))
@@ -585,6 +630,24 @@ else if( pKey == cpedb.ProvDoneKey )
     }
 
     call(cpedb.CPE_List_Script);
+
+	if(hclass == 'FAP_FC4064Q1CA')
+	{
+		// if(cpedb.sasStatus == "unreg")
+		if(1 == 2)
+		{
+			cpe.log("/////////////////////////////////TRIGGER DOMAIN PROXY\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'")
+			var sql_query1 = "update dp_device_info SET `sasStage` = 'reg' WHERE `SN` = \'"+SerialNumber+"\'"
+			// var sql_query1 = "SELECT * FROM dp_device_info"
+			cpe.log("!!!!!!!!!!!!!!!!!!DP TEST!!!!!!!!!!!!!!!")
+			cpe.log("SQL CMD :"+sql_query1)
+			cpe.log("!!!!!!!!!!!!!!!!!!DP TEST!!!!!!!!!!!!!!!")
+			db.Update(sql_query1)
+			//when dp flow is complete cell will turn on
+			cpedb.sasStatus = "reg";
+			cpe.log(cpedb.sasStatus);
+		}	
+	}
 
 	try
 	{

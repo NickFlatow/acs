@@ -262,3 +262,14 @@ function CreateSql_AlarmActionDB(RecvdAlarm,cpeBTS,cpeLCR)
 		
 		return sql;
 }
+function cbsd(hclass)
+{
+	if(hclass == 'FAP_FC4064Q1CA')
+	{
+		return True;
+	}
+	else
+	{
+		return False;
+	}
+}

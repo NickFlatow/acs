@@ -399,7 +399,7 @@ function action_Script_A()
 	cpe.log('=======================RF_OFF RF_OFF RF_OFF =========================');
 
 	setParameters_Mgt[0]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState', value:false,type:'xsd:boolean'};
-	cpe.SetParameterValues (setParameters_Mgt, pKey);
+	cpe.SetParameterValues (setParameters_Mgt, cpedb.ProvDoneKey);
 	func_logSave('Run Script A', 'Fail', 'feature not ready', ScheduleTime, cpedb.UserName);
 	return 1;
 }
@@ -415,10 +415,11 @@ function action_Script_B()
 	// cpedb.EnableService = 'on';
 	// cpedb.RF_on_para;
 
+	setParameters_Mgt[0]={name:'Device.Services.FAPService.1.CellConfig.LTE.EPC.PLMNList.1.Enable', value:true, type:'xsd:boolean'};
+	setParameters_Mgt[1]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState', value:true,type:'xsd:boolean'};
 
-	setParameters_Mgt[0]={name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState', value:true,type:'xsd:boolean'};
 
-	cpe.SetParameterValues (setParameters_Mgt, cpedb.pKey);
+	cpe.SetParameterValues (setParameters_Mgt, cpedb.ProvDoneKey);
 	func_logSave('Run Script A', 'Fail', 'feature not ready', ScheduleTime, cpedb.UserName);
 	return 1;
 }

@@ -609,7 +609,7 @@ try
 		"`CBC` = " + "'" + cpedb.CBC + "'" + " WHERE SN = " + "'" + SerialNumber + "'" + ";";
 
 
-	if(hclass == 'sXGP_FAP_FC4064' || hclass == 'FAP_FC4064')
+	if(hclass == 'FAP_FC4064Q1CA' || hclass == 'FAP_FC4064')
 	{
 		var dp_sql_query = "SELECT * FROM `" + cpedb.DpListDB + "` WHERE `SN` = '" + SerialNumber + "';";
 		var DPSql = db.Query(dp_sql_query);
@@ -622,9 +622,10 @@ try
 		}
 		else 
 		{
-			dp_sql_update = "INSERT INTO dp_device_info (`SN`,`EARFCN`,`TxPower`) Values(\'"+SerialNumber+"\',\'"+ cpedb.EARFCNinUSE + "\',\'" +cpedb.MaxTxPower+ "\')"
+			dp_sql_update = "INSERT INTO dp_device_info (`SN`,`EARFCN`,`TxPower`,`sasStage`) Values(\'"+SerialNumber+"\',\'"+ cpedb.EARFCNinUSE + "\',\'" +cpedb.MaxTxPower+ "\','unreg')"
 			cpe.log(SerialNumber+": SQL cmd for DOMAIN PROXY " + dp_sql_update);
 			db.Update(dp_sql_update);
+			cpedb.sasStatus = "unreg";
 		}
 	}
 	

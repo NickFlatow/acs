@@ -82,6 +82,7 @@ cpedb.ConnreqUname = "admin";
 cpedb.ConnreqPass = "password";
 cpedb.CBC = "undefined";
 
+
 /*Foxconn 20180118 jay add*/
 cpedb.DefGwMac = "undefined";
 cpedb.InterRATCell = "undefined";
@@ -151,7 +152,7 @@ function verifyNeighborList(InterRATCell, inform_InterRATCell) {
 /* 2019/01/16, Darren, Set java entry for log limit check point. */
 function logLimitCheck(targetLine) {
        /* Action History */
-
+       
        var actionHistoryQuery = "SELECT COUNT(*) AS NUMBER FROM `apt_action_history`;";
        var actionHistoryQueryResult = db.Query(actionHistoryQuery);
 
@@ -291,8 +292,8 @@ logLimitCheck(1000000);
 if (hclass == 'DTU_5GHZ') 
 {
        call(cpedb.DTU_Provision_Script);
-       
-} else if (hclass == 'FAP_FC4008' || hclass == 'FAP_FC4064' || hclass == 'sXGP_FAP_FC4064') {
+       cpe.log(hclass)
+} else if (hclass == 'FAP_FC4008' || hclass == 'FAP_FC4064' || hclass == 'FAP_FC4064Q1CA') {
 
        if (cpedb.cpeCid == 'undefined') {
               var getParameters = new Array();
@@ -424,7 +425,7 @@ if (hclass == 'DTU_5GHZ')
                      func_logSave('HeNB Inform', 'fail', '[System exception] ' + e.message, '', 'System');
                      cpe.log('HeNB Inform', 'fail', '[System exception] ' + e.message, '', 'System');
               }
-
+              
               if (cpedb.ServiceName != "undefined") {
                      try {
                             var sql_query = "SELECT * FROM `" + cpedb.ServiceDB + "` WHERE `name` = '" + cpedb.ServiceName + "';"
@@ -495,6 +496,7 @@ if (hclass == 'DTU_5GHZ')
               }
 
               cpe.log(SerialNumber + ':' + 'Current cpedb.ProvDoneKey -> ' + cpedb.ProvDoneKey);
+              // cpe.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\npKey ="+pKey+"\n!!!!!!!!!!!!!!!!!!!!!!!");
 
               /*Foxconn_S-20180323-Wilson comment*/
               /*
@@ -590,10 +592,10 @@ cpe.log('');
 
               pKey = cpedb.pKey;
               cpedb.ForceFMUG = 'FALSE';
-
               if (cpedb.ServiceName == "undefined" || cpedb.SwName == "undefined") {
                      cpedb.cpeStatus = "Unsubscribed";
                      cpe.log(SerialNumber + ': Default - Device is Unsubscribed');
+                     cpe.log("111111111111111111111111111111111111111111111111")
                      call(cpedb.CPE_List_Script);
               } else if (pKey == 'FWUpgrade-Step1') {
                      //cpe.log(SerialNumber+': Default - pKey is related to FWUpgrade' );
@@ -602,6 +604,7 @@ cpe.log('');
                      //2018/11/26, Darren, dequeue at FW mismatch state to prevent queue freezed on FeMS UI.
                      cpe.log(SerialNumber + ' : ' + 'Going to dequeue on FW mismatched situation [fems_Default.js : 607]');
                      call(cpedb.CPE_Mgmt_Script);
+                     cpe.log("2222222222222222222222222222222222222222222222222222")
                      call(cpedb.CPE_List_Script);
                      call(cpedb.FMUG_Script);
               } else if (pKey == 'LTE_FIOS_STEP2_1' || pKey == 'LTE_FIOS_STEP2' || pKey == 'LTE_FIOS_STEP3' || pKey == 'LTE_FIOS_STEP4' || pKey == 'LTE_FIOS_STEP6') {
@@ -610,10 +613,18 @@ cpe.log('');
                      cpedb.cpeStatus = "Provisioning";
                      //20181026, Darren, remove this function due to it will cause unnecessary queue.
                      //func_deleteUnsubscribedResetDefault();/* Foxconn 20171024 jay add: Delete Unsubscribe-reset-to-default from cpedb.ActionQDB */
+                     cpe.log("333333333333333333333333333333333333333333333333333")
                      call(cpedb.CPE_List_Script);
                      //20190412, Darren, shall not dequeue while in provision.
                      //call(cpedb.CPE_Mgmt_Script);  
                      call(cpedb.Provision_Script);
+              } 
+              else if (pKey == 'LTE_FIOS_STEP7')
+              {
+                     
+                     call(cpedb.CPE_Mgmt_Script);
+                     call(cpedb.Provision_Script);
+                     call(cpedb.CPE_List_Script);
               }
               /* Foxconn 20171024 jay add */
               else if (mismatchDeviceType == 1) {
@@ -621,6 +632,7 @@ cpe.log('');
                      func_logSave('Provisioning', 'fail', 'HeNB device type mismatched. Device Type in service profile is ' + Service_deviceType + ', please check service setting', '', cpedb.UserName);
                      cpedb.cpeStatus = "DeviceMismatch"; /*Foxconn_S-20180323-Wilson modify */
                      cpedb.pKey = "Processing-Fail";
+                     cpe.log("44444444444444444444444444444444444444444444444444")
                      call(cpedb.CPE_List_Script);
               }
               /* Foxconn 20171024 jay add end*/
@@ -633,6 +645,7 @@ cpe.log('');
                             //2018/11/26, Darren, dequeue at FW mismatch state to prevent queue freezed on FeMS UI.
                             cpe.log(SerialNumber + ' : ' + 'Going to dequeue on FW mismatched situation [fems_Default.js : 638]');
                             call(cpedb.CPE_Mgmt_Script);
+                            cpe.log("555555555555555555555555555555555555555555555555555")
                             call(cpedb.CPE_List_Script);
                             call(cpedb.FMUG_Script);
                      } else if (pKey == cpedb.ProvDoneKey) {
@@ -662,11 +675,13 @@ cpe.log('');
                             }
                             //20181026, Darren, add connection request event to protect provision interval.
                             if (gotConnectionRequestEvent == 1) {
+                                   cpe.log("66666666666666666666666666666666666666666666666")
                                    call(cpedb.CPE_Mgmt_Script);
                                    call(cpedb.CPE_List_Script);
                             } else {
                                    //20190412, Darren, shall not dequeue while in provision.
                                    //call(cpedb.CPE_Mgmt_Script);
+                                   cpe.log("77777777777777777777777777777777777777777777")
                                    call(cpedb.CPE_List_Script);
                                    call(cpedb.Provision_Script);
                             }
@@ -674,6 +689,7 @@ cpe.log('');
                      } else {
                             func_logSave('Provisioning', 'Processing', 'HeNB Provision start', '', cpedb.UserName);
                             cpedb.cpeStatus = "Provisioning";
+                            cpe.log("8888888888888888888888888888888888888888888888888")
                             call(cpedb.CPE_List_Script);
                             call(cpedb.Provision_Script);
                      }
