@@ -32,7 +32,6 @@ cpedb.DTU_Mgmt_Script       = "DTU_CPE_Management";
 cpedb.FMUG_Script        	= "fems_FW_Upgrade";
 cpedb.DTU_FW_UPGRADE_Script = "DTU_FW_Upgrade";
 cpedb.AlarmMagmt_Script  	= "fems_Alarm_Manage";
-cpedb.sasStatus             =  "undefined";
 cpedb.RF_off_para			= {name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState', value:false,type:'xsd:boolean'}; 
 cpedb.RF_on_para			= {name:'Device.Services.FAPService.1.FAPControl.LTE.AdminState', value:true,type:'xsd:boolean'}; 
 cpedb.ForceLogUpload		= {name:'Device.X_FOXCONN_MGMT.SYSLOG.LogUploadServer.ForceUpload', value:true,type:'xsd:boolean'}; 

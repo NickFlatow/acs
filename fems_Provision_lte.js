@@ -631,10 +631,10 @@ else if( pKey == cpedb.ProvDoneKey )
 
     call(cpedb.CPE_List_Script);
 
-	if(hclass == 'FAP_FC4064Q1CA')
+	// if(hclass == 'FAP_FC4064Q1CA')
+	if(cbsd(hclass))
 	{
-		// if(cpedb.sasStatus == "unreg")
-		if(1 == 2)
+		if(getSasStage())
 		{
 			cpe.log("/////////////////////////////////TRIGGER DOMAIN PROXY\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'")
 			var sql_query1 = "update dp_device_info SET `sasStage` = 'reg' WHERE `SN` = \'"+SerialNumber+"\'"
@@ -651,7 +651,7 @@ else if( pKey == cpedb.ProvDoneKey )
 
 	try
 	{
-		paramSet_Prov[0]={name:'Device.ManagementServer.PeriodicInformInterval', value:cpedb.PII, type:'xsd:unsignedInt'};    
+		paramSet_Prov[0]={name:'Device.ManagementServer.PeriodicInformInterval', value:10, type:'xsd:unsignedInt'};    
         pKey = cpedb.ProvDoneKey;
         cpe.SetParameterValues (paramSet_Prov, pKey);
         func_logSave('Provisioning', 'Success', 'Periodic HeNB Provision performed sucessfully, current key -> ' + pKey, '', cpedb.UserName);

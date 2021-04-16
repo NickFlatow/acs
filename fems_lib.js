@@ -266,10 +266,26 @@ function cbsd(hclass)
 {
 	if(hclass == 'FAP_FC4064Q1CA')
 	{
-		return True;
+		return true;
 	}
 	else
 	{
-		return False;
+		return false;
 	}
+}
+function getSasStage()
+{
+	var sql = "SELECT sasStage FROM dp_device_info WHERE `SN` = '"+ SerialNumber +"';";
+    cpe.log(sql)
+    a = db.Query(sql);
+    cpe.log(a[0].sasStage);
+
+    if (a[0].sasStage == "unreg")
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
